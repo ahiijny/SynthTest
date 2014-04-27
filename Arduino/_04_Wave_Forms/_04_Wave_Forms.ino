@@ -23,7 +23,8 @@
  * high period (microseconds) = 0.5 * 2^(-(m - 69)/12.0) / 440 * 1000000
  */
 const int amplitude = 64;
-int speakerPin = 9;
+const int speakerPin = 9;
+const int sampleRate = 44100;
 
 int length = 47; // the number of notes
 int notes[] = {48, 55, 60, 64, 60, 50, 57, 60, 65, 60, 52, 55, 60, 67, 64,
@@ -39,6 +40,49 @@ int toneDuration[108]; // Now the duration of an entire wave cycle
 int waveType = 2;
 int lookupResolution = 512;
 char * lookUpTable;
+
+/** From: playground.arduino.cc/Code/PwmFrequency
+ *        forum.arduino.cc/index.php/topic,16612.0.html#4 
+ */
+void setPwmFrequency(int pin, int divisor) 
+{
+    byte mode;
+    if(pin == 5 || pin == 6 || pin == 9 || pin == 10) 
+    {
+        switch(divisor) 
+        {
+            case 1: mode = 0x01; break;
+            case 8: mode = 0x02; break;
+            case 64: mode = 0x03; break;
+            case 256: mode = 0x04; break;
+            case 1024: mode = 0x05; break;
+            default: return;
+        }
+        if(pin == 5 || pin == 6) 
+        {
+            TCCR0B = TCCR0B & 0b11111000 | mode;
+        } 
+        else 
+        {
+            TCCR1B = TCCR1B & 0b11111000 | mode;
+        }
+    } 
+    else if(pin == 3 || pin == 11) 
+    {
+        switch(divisor) 
+        {
+          case 1: mode = 0x01; break;
+          case 8: mode = 0x02; break;
+          case 32: mode = 0x03; break;
+          case 64: mode = 0x04; break;
+          case 128: mode = 0x05; break;
+          case 256: mode = 0x06; break;
+          case 1024: mode = 0x7; break;
+          default: return;
+        }
+        TCCR2B = TCCR2B & 0b11111000 | mode;
+    }
+}
 
 void playTone(int tone, int duration)
 {
@@ -80,12 +124,16 @@ void playNote(int note, int duration)
 
 void setup()
 {
-	pinMode(speakerPin, OUTPUT);
+    pinMode(speakerPin, OUTPUT);
 
-	// Calculate Tone Durations
+    // Calculate Tone Durations
 
-	for (int i = 20; i < 108; i++)
+    for (int i = 20; i < 108; i++)
         toneDuration[i] = (int)(pow(2, -(i - 69)/ 12.0) / 440 * 1000000);
+        
+    // Set PWM frequency
+    
+    setPwmFrequency(speakerPin, 8); // 31250 Hz divide 8 = 3906.25 Hz
         
     // Init Lookup Table
     
@@ -119,7 +167,7 @@ void setup()
 
 void loop()
 {
-	for (int i = 0; i < length; i++)
+    for (int i = 0; i < length; i++)
     {
         playNote(notes[i], beats[i] * tempo);
 

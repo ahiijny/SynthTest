@@ -24,13 +24,6 @@
  *
  * http://www.arduino.cc/en/Tutorial/Melody
  *
- * From http://www.phys.unsw.edu.au/jw/notes.html :
- *
- * A4 = 440 Hz
- * n = # of semitones away from A4
- * fn = 2^(n/12) * 440
- * fm = 2^((m - 69)/ 12) * 440
- * tone = 2^(-(m - 69)/12.0 - 1) * 440
  */
   
 int speakerPin = 9;
