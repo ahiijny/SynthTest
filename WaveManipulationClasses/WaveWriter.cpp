@@ -4,9 +4,12 @@
 
 using namespace std;
 
+/** https://ccrma.stanford.edu/courses/422/projects/WaveFormat/
+ */
 WaveWriter::WaveWriter(string file_path, int sample_rate, int num_channels, int bits_per_sample)
 {
     // Initialize Variables
+    
     path = file_path.c_str();
     sampleRate = sample_rate;
     numChannels = num_channels;
@@ -58,6 +61,7 @@ int WaveWriter::size()
  *
  * @param start		the index of the first byte to replace
  * @param newBytes	the replacement bytes
+ * @param length    the number of bytes
  */
 void WaveWriter::swap(int start, char * newBytes, int length)
 {
@@ -69,7 +73,7 @@ void WaveWriter::swap(int start, char * newBytes, int length)
 //------- Helper Methods---------
 //-------------------------------
 
-/** Converts a short into 2 bytes, little endian.
+/** Converts a short into 2 bytes (little endian).
  */
 char * WaveWriter::getBytes (short n)
 {
@@ -84,7 +88,7 @@ char * WaveWriter::getBytes (short n)
     return two;
 }
 
-/** Converts an int into 4 bytes, little endian.
+/** Converts an int into 4 bytes (little endian).
  */
 char * WaveWriter::getBytes (int n)
 {
@@ -201,6 +205,8 @@ void WaveWriter::subchunk2SizeSet(bool init)
         swap(40, getBytes(subchunk2Size), 4);
 }
 
+/** Writes bytes in buffer to file.
+ */
 bool WaveWriter::write()
 {
     finalizeChunkSizes();

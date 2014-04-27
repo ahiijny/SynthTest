@@ -20,7 +20,7 @@
  *
  * where the different tones are described as in the table:
  *
- * note 	frequency 	period 	timeHigh
+ * note 	   frequency 	    period 	timeHigh
  * c 	        261 Hz 	        3830 	1915
  * d 	        294 Hz 	        3400 	1700
  * e 	        329 Hz 	        3038 	1519
@@ -32,19 +32,20 @@
  *
  * http://www.arduino.cc/en/Tutorial/Melody
  */
- 
-//-----------------------------------------------------------
-//------ whatever substitutes for Arduino ignore these ------
-//-----------------------------------------------------------
+
+//----------------------------------------------------------------------------
+//--------- ignore these (substitutes for Arduino variables so that ----------
+//--------------- the Arduino code can compile in C++ code) ------------------
+//----------------------------------------------------------------------------
 
 int sampleRate = 44100;
 WaveWriter ww("Audio/CODE06_Audio.wav", sampleRate);
 
 const int HIGH = 192;
 const int LOW = 64;
-const int OUTPUT = 0; // we're not using this anyway
+const int OUTPUT = 0; // whatever; we're not using this anyway
 
-char state = 0; // the state of the "Piezo Element"
+char state = 0; // the current state of the "Piezo Element"
 
 void pinMode(int pin, int mode)
 {
@@ -76,7 +77,7 @@ void delay (int duration)
 }
 
 //---------------------------------------------------------------------
-//---------------------------- IGNORE ---------------------------------
+//------------------------- IGNORE THIS ALSO --------------------------
 //---------------------------------------------------------------------
 void setup();
 void loop();

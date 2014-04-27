@@ -2,6 +2,8 @@
 #define WAVEWRITER_H
 #include <vector>
 
+/** https://ccrma.stanford.edu/courses/422/projects/WaveFormat/
+ */
 using namespace std;
 
 class WaveWriter

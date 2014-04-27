@@ -60,20 +60,6 @@ void analogWrite(int pin, int value)
 	state = (char)value;
 }
 
-void delayMicroseconds (int duration)
-{
-	int samples = int(duration / 1000000.0 * sampleRate + 0.5);
-	for (int i = 0; i < samples; i++)
-		ww.append(state);
-}
-
-void delay (int duration)
-{
-	int samples = int(duration / 1000.0 * sampleRate + 0.5);
-	for (int i = 0; i < samples; i++)
-		ww.append(state);
-}
-
 long micros()
 {
     return (long)((ww.size() - 44) * 1000000.0 /sampleRate);
@@ -82,6 +68,24 @@ long micros()
 long millis()
 {
     return (long)((ww.size() - 44) * 1000.0 /sampleRate);
+}
+
+void delayMicroseconds (int duration)
+{
+	int samples = int(duration / 1000000.0 * sampleRate + 0.5);
+	for (int i = 0; i < samples; i++)
+	{
+        ww.append(state);
+    }
+}
+
+void delay (int duration)
+{
+	int samples = int(duration / 1000.0 * sampleRate + 0.5);
+	for (int i = 0; i < samples; i++)
+	{
+		ww.append(state);
+    }
 }
 
 //---------------------------------------------------------------------
@@ -116,11 +120,11 @@ int notes[] = {48, 55, 60, 64, 60, 50, 57, 60, 65, 60, 52, 55, 60, 67, 64,
 int beats[] = {2, 1, 2, 1, 2, 2, 1, 2, 1, 2, 2, 1, 2, 1, 2,
                1, 2, 2, 1, 2, 1, 2, 2, 1, 2, 1, 2, 2, 1, 2,
                1, 2, 2, 1, 2, 1, 2, 2, 1, 2, 1, 2, 2, 2, 2, 2, 4};
-
+               
 int tempo = 125;
 
 int toneDuration[108]; // Now the duration of an entire wave cycle
-int waveType = 2;
+int waveType = 0;
 int lookupResolution = 512;
 char * lookUpTable;
 
