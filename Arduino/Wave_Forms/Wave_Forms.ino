@@ -105,7 +105,7 @@ void setup()
     {
         for (int i = 0; i < lookupResolution; i++)
         {
-            lookUpTable[i] = (char)(amplitude * sin(2 * M_PI / lookupResolution * i) + 128);
+            lookUpTable[i] = (char)(amplitude * sin(2 * PI / lookupResolution * i) + 128);
         }
     }
     else if (waveType == 2) // sawtooth
