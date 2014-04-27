@@ -1,1 +1,4 @@
 *.mid
+*.o
+*.layout
+*.win
