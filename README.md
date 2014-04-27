@@ -3,7 +3,7 @@ SynthTest
 
 Experimentation with audio synthesis.
 
-=====================
+
 ======= C++: ========
 =====================
 1.0. ToneGenerator.dev:    
@@ -46,19 +46,19 @@ Experimentation with audio synthesis.
         Identical to [6] except that it plays a sequence of notes instead of just a chord.
         
 
-========================
+
 ======= Arduino: =======
 ========================
 
-1. [3.0] CODE_06_Piezo_Elements.ino
+1. [^3.0] CODE_06_Piezo_Elements.ino
 
-2. [4.0] More_Notes
+2. [^4.0] More_Notes.ino
 
-3. [---] Low_Pass_Filter_Tester: Applies a constant 128 pulse width modulation so that a low-pass
+3. [----] Low_Pass_Filter_Tester.ino: Applies a constant 128 pulse width modulation so that a low-pass
          filter can be tested, to convert the PWM to an analog voltage (0-5V). Silence = successful.
 
-4. [5.0] Wave_Forms
+4. [^5.0] Wave_Forms.ino
 
-5. [6.0] Concurrent_Tone
+5. [^6.0] Concurrent_Tone.ino
 
 
