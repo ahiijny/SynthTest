@@ -20,7 +20,7 @@ int main ()
     int length = 0;
     int counter = 0;
     int sampleSize;
-    int byteStep;
+    int stepQuanta;
     int monoLength;
     int adjustment;
     // ^ 8-bit samples are stored as unsigned bytes, ranging from 0 to 255.
@@ -47,16 +47,16 @@ int main ()
         targetSampleRate = wd.sampleRate;
 
     adjustment = wd.bitsPerSample == 16 ? 128 : 0;
-
     sampleSize = wd.bitsPerSample / 8;
-    byteStep = wd.numChannels * sampleSize * wd.sampleRate / targetSampleRate;
-    monoLength = (length - 44) / byteStep + 1;
+    stepQuanta = wd.numChannels * sampleSize;
+    monoLength = int((length - 44.0) / stepQuanta * targetSampleRate / wd.sampleRate);
     monoBytes = new char[monoLength];
-    
-	for (int i = 44 + sampleSize - 1; i < length; i += byteStep, counter++)
-	{
-		monoBytes[counter] = (char)(bytes[i] + adjustment);
-	}
+
+    for (int i = 0; i < monoLength; i++)
+    {
+        int index = (44 + sampleSize - 1) + stepQuanta * int(1.0 * i * wd.sampleRate / targetSampleRate);
+        monoBytes[i] = (char)(bytes[index] + adjustment);
+    }
 	
 	// Output mono'd audio
 	
@@ -65,7 +65,7 @@ int main ()
 	ww.write();
 	
 	// End
-
+	
     cout << endl << "Press any key to continue... ";
     getch();
     return 0;

@@ -15,10 +15,12 @@ class WaveWriter
         int size();
         void swap(int start, char * newBytes, int length);
         bool write();
+        
+        std::vector<char> bytes;
+        void finalizeChunkSizes();
 
     private:
         const char * path;
-        std::vector<char> bytes;
         int subchunk2Size;
         int sampleRate;
         short numChannels;
@@ -40,8 +42,6 @@ class WaveWriter
 		void bitsPerSampleSet();
 		void subchunk2ID();
 		void subchunk2SizeSet(bool init);
-
-		void finalizeChunkSizes();
 };
 
 #endif // WAVEWRITER_H
