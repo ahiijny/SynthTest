@@ -44,8 +44,14 @@ Experimentation with audio synthesis.
 
 6.5. PiezoEmulatorConcurrentNotes.dev: (ARDUINO)
         Identical to [6] except that it plays a sequence of notes instead of just a chord.
-        
 
+7.0 MidiWriter.dev
+        Writes a .mid file based on commands invoked in the source code.
+
+7.5 MidiInterpreter.dev
+        Reads a .mid file, and prints information decoded from the binary data.
+        Params:
+            Midi path:                  for the input .mid file
 
 ======= Arduino: =======
 ========================

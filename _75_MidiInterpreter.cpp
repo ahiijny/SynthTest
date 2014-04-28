@@ -6,10 +6,14 @@
 using namespace std;
 int main()
 {
+    string path = "Audio/piano.mid";
+    cout << "Midi path: ";
+    cin >> path;
+    
     // Init
     
     int length;
-    MidiDecoder md("Audio/piano.mid");
+    MidiDecoder md(path);
     md.read(length);
     
     // Print data
