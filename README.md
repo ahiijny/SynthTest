@@ -38,7 +38,7 @@ Experimentation with audio synthesis.
 5.5. PiezoEmulatorToneGenerator.dev: (ARDUINO)
         Identical to [5] except that it only plays one note for an extended period of time.
 
-6. PiezoEmulatorConcurrentTone.dev: (ARDUINO)
+6.0 PiezoEmulatorConcurrentTone.dev: (ARDUINO)
         Uses MIDI-like encoding with notes, delta time, and velocity to allow multiple notes
         to be played simultaneously. It has 3 channels. It plays a C, E, and G simultaneously.
 
