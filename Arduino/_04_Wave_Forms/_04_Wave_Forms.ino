@@ -26,7 +26,7 @@ const int amplitude = 64;
 const int speakerPin = 9;
 const int sampleRate = 44100;
 
-int length = 47; // the number of notes
+/*int length = 47; // the number of notes
 int notes[] = {48, 55, 60, 64, 60, 50, 57, 60, 65, 60, 52, 55, 60, 67, 64,
                67, 64, 65, 55, 60, 67, 64, 65, 55, 60, 64, 60, 65, 55, 60,
                65, 60, 64, 55, 60, 67, 64, 62, 55, 60, 65, 60, 64, 55, 60, 64, -1}; // -1 indicates rest
@@ -34,7 +34,12 @@ int beats[] = {2, 1, 2, 1, 2, 2, 1, 2, 1, 2, 2, 1, 2, 1, 2,
                1, 2, 2, 1, 2, 1, 2, 2, 1, 2, 1, 2, 2, 1, 2,
                1, 2, 2, 1, 2, 1, 2, 2, 1, 2, 1, 2, 2, 2, 2, 2, 4};
 
-int tempo = 125;
+int tempo = 125;*/
+
+int length = 15;
+int notes[] = {60, 60, 67, 67, 69, 69, 67, 65, 65, 64, 64, 62, 62, 60, -1};
+int beats[] = { 1, 1, 1, 1, 1, 1, 2, 1, 1, 1, 1, 1, 1, 2, 4 };
+int tempo = 300;
 
 int toneDuration[108]; // Now the duration of an entire wave cycle
 int waveType = 2;
