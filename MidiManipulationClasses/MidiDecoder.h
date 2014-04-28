@@ -1,5 +1,6 @@
 #ifndef MIDIDECODER_H
 #define MIDIDECODER_H
+#include <vector>
 
 using namespace std;
 
@@ -10,10 +11,13 @@ class MidiDecoder
         int size;
         int formatType;
         int trackNum;
+        vector<int> trackDataStartIndexes;
+        vector<int> trackSizes;
         int pulsesPerQuarterNote;
         int framesPerSecond;
         int ticksPerFrame;
-        bool isTimeDivisionSMPTE;
+        int microsecondsPerTick;
+        bool isTimeDivisionInPPQN;
         char * bytes;
         char * read(int &length);
         
@@ -33,6 +37,7 @@ class MidiDecoder
         
         int getShort(int startIndex);
         int getInt(int startIndex);
+        int getInt(int startIndex, int byteNum);
         int getVarLen(int &index);
 };
 

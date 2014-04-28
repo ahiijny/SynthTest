@@ -11,6 +11,8 @@ using namespace std;
 MidiDecoder::MidiDecoder(string file_path)
 {
     path = file_path.c_str();
+    microsecondsPerTick = 500000; // default is 120 bpm
+    isTimeDivisionInPPQN = true;
 }
 
 /** Converts 2 consecutive bytes (big endian) into an int.
@@ -32,6 +34,19 @@ int MidiDecoder::getInt(int startIndex)
 {
 	int value = 0;
 	for (int i = 0; i < 4; i++)
+	{
+		value <<= 8;
+		value |= (int)bytes[startIndex + i] & 0xFF;
+	}
+	return value;
+}
+
+/** Converts byteNum consecutive bytes (big endian) into an int.
+ */
+int MidiDecoder::getInt(int startIndex, int byteNum)
+{
+	int value = 0;
+	for (int i = 0; i < byteNum; i++)
 	{
 		value <<= 8;
 		value |= (int)bytes[startIndex + i] & 0xFF;
@@ -69,13 +84,11 @@ void MidiDecoder::decodeParams()
 void MidiDecoder::decodeFormat()
 {
     formatType = getShort(8);
-    printf("Format type: %i\n", formatType);
 }
 
 void MidiDecoder::decodeNumTracks()
 {
     trackNum = getShort(10);
-    printf("Number of tracks: %i\n", trackNum);
 }
 
 /** Reads the time division.
@@ -87,17 +100,14 @@ void MidiDecoder::decodeTimeDivision()
     
     if ((one & 0x08) == 0x00) // First byte is 0xxxxxxx ; Division is pulses per quarter note (ppqn)
     {
-        isTimeDivisionSMPTE = false;
+        isTimeDivisionInPPQN = true;
         pulsesPerQuarterNote = getShort(12);
-        printf("Pulses per quarter note: %i\n", pulsesPerQuarterNote);
     }
     else // First byte is 1xxxxxxx ; Division is number of frames per second SMPTE time and the number of beats (or ticks) per frame.
     {
-        isTimeDivisionSMPTE = true;
+        isTimeDivisionInPPQN = false;
         framesPerSecond = (int)one * -1;
         ticksPerFrame = (int)two & 0xFF;
-        printf("Frames per second: %i\n", framesPerSecond);
-        printf("Ticks per frame: %i\n", ticksPerFrame);
     }
 }
 
@@ -127,11 +137,11 @@ void MidiDecoder::decodeTrackChunk(int &index)
     int chunkSize;
     int chunkEnd;
 
-    printf("%i: MTrk: ", index);
+    trackDataStartIndexes.push_back(index + 8);
     index += 4;
 
     chunkSize = getInt(index);
-    printf("size = %i\n", chunkSize);
+    trackSizes.push_back(chunkSize);
     index += 4;
     
     chunkEnd = index + chunkSize;
@@ -194,22 +204,26 @@ void MidiDecoder::decodeMetaEvent(int &index)
     char type = bytes[index];
     index++;
     int length = getVarLen(index);
-    printf("Meta %x len %i ", type, length);
+    /*printf("Meta %x len %i ", type, length);
     for (int i = 0; i < length; i++)
         printf("%4i ", bytes[index + i]);
+    cout << endl;*/
+
+    if (type == 0x51)
+        microsecondsPerTick = getInt(index, 3);
+
     index += length;
-    cout << endl;
 }
 
 void MidiDecoder::decodeSystemExclusiveEvent(char statusByte, int &index)
 {
     char type = statusByte & 0x0F;
     int length = getVarLen(index);
-    printf("Syst %x len %1\n", type, length);
+    /*printf("Syst %x len %1\n", type, length);
     for (int i = 0; i < length; i++)
         printf("%4i ", bytes[index + i]);
+    cout << endl;*/
     index += length;
-    cout << endl;
 }
 
 /** Reads the byte data from the specified file. The length of these
