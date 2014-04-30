@@ -6,13 +6,10 @@
 
 using namespace std;
 
-BinaryToArduino::BinaryToArduino(string portName, int bytes_per_chunk = 1)
+BinaryToArduino::BinaryToArduino(string portName)
 {
     serialPort = portName;
-    bytesPerChunk = bytes_per_chunk;
-    
-    go = 'G';
-    stop = 'S';
+    next = 'N';
 }
 
 bool BinaryToArduino::connected()
@@ -50,35 +47,25 @@ void BinaryToArduino::send(char * bytes, int length, int offset)
         cout << "Sending " << length << " bytes...\n";
         
         char * msgBuffer = new char [1];
+        int result;
         cout << endl;
-        for (int i = offset; i < offset + length; i += bytesPerChunk)
+        
+        for (int i = offset; i < offset + length; i ++)
         {
-            // Check serial for any messages.
-
-            int result = mySerial->ReadData(msgBuffer, 1);
-
-            // If a byte was read, interpret the byte.
-            if (result != -1)
+            if (!mySerial->WriteData(&bytes[i], 1)) // Write a chunk
             {
-                if (msgBuffer[0] == go) // Resume transmission if 'G' is transmitted
-                    paused = false;
+                i--; // Go back a chunk if write was unsuccessful
+                cout << "!";
+            }
+            
+            do // Check serial for any messages.
+            {
+                result = mySerial->ReadData(msgBuffer, 1);
+            }
+            while (result == -1); // Delay until next byte is requested.
 
-                else if (msgBuffer[0] == stop) // Stop transmission if 'S' is transmitted
-                    paused = true;
-
+            if (msgBuffer[0] != next)
                 cout << msgBuffer[0];
-            }
-
-            // Write a chunk of data if not paused
-
-            if (!paused)
-            {
-                if (!mySerial->WriteData(&bytes[i], bytesPerChunk)) // Write a chunk
-                {
-                    i -= bytesPerChunk; // Go back a chunk if write was unsuccessful
-                    cout << "!";
-                }
-            }
         }
 
         printf("\nSent %u bytes.\n", length);

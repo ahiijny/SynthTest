@@ -5,10 +5,7 @@ unsigned long localEnd = micros();
 
 bool receiving = true;
 bool processing = false;
-int baud = 9600;
-
-int serialBufferLimitLow = 16; // max Serial.available() value for resuming reading
-int serialBufferLimitHigh = 48; // min Serial.available() value for stopping reading
+int baud = 28800;
 
 const int bufferSize = 1024;
 byte buffer[bufferSize]; // stores bytes of data that are read in
@@ -78,31 +75,12 @@ void readSerial()
     
     if ((bufferCyclesAhead * bufferSize + bufferIndex) - (caretIndex) < maxDiff)
     {
-        // If transmission was halted, resume transmission if buffer is empty enough            
-        
-        if (!receiving && Serial.available() < serialBufferLimitLow)
-        {
-             receiving = true;
-             Serial.write('G');  // Send message to resume sending. 'G' for "Go".
-        }
-                
         if (Serial.available() > 0)
-        {                       
-            // Read data           
+        {
+            // Read Byte
             
             buffer[bufferIndex] = (byte)Serial.read();
-            bufferIndex++;
-            
-            // Avoid serial buffer overflow
-            
-            if (Serial.available() > serialBufferLimitHigh)
-            {
-                if (receiving)
-                {
-                    receiving = false;
-                    Serial.write('S'); // send message to suspend sending. 'S' for "Stop".
-                }
-            }
+            bufferIndex++;  
             
             // Increment buffer index
             
@@ -110,17 +88,11 @@ void readSerial()
             {
                 bufferIndex = 0;
                 bufferCyclesAhead++;
-            }                          
-        }        
+            }     
+            
+            Serial.write(0x4E); // Request next byte
+        }   
     } 
-    else
-    {
-        if (receiving)
-        {
-            receiving = false;
-            Serial.write('S'); // send message to suspend sending. 'S' for "Stop".
-        }
-    }
 }
 
 /** Converts 2 consecutive bytes (little endian) into an int.
@@ -171,7 +143,7 @@ void process()
 {
     if (initializingWaveHeader)
     {
-        if (caretIndex >= 44)
+        if (bufferIndex >= 44)
         {
             sampleRate = getInt(24);
             sampleResolution = 1000000 / sampleRate;
@@ -192,12 +164,12 @@ void setup()
 {
     Serial.begin(baud);
     pinMode(speakerPin, OUTPUT);
-    setPwmFrequency(speakerPin, 8); // 31250 Hz divide 8 = 3906.25 Hz
+    setPwmFrequency(speakerPin, 1); // 31250 Hz divide 8 = 3906.25 Hz
 }
 
 void loop()
 {    
-    readSerial();
+    readSerial();       
     
     // Only do stuff with the data if the caretIndex isn't too close to catching up with the bufferIndex
     if ((bufferCyclesAhead * bufferSize + bufferIndex) - (caretIndex) > minDiff)

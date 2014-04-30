@@ -17,7 +17,6 @@ int main()
     string path;
     string serialPort;
     DWORD baudRate;
-    int bytesPerChunk = 1;
     int targetSampleRate = 3906;
 
     int length = 0; // From wave degrader
@@ -39,14 +38,12 @@ int main()
     cin >> serialPort;
     cout << "Baud rate: ";
     cin >> baudRate;
-    cout << "Bytes per chunk (sending to Arduino): ";
-    cin >> bytesPerChunk;
     cout << "Target samples per second: ";
     cin >> targetSampleRate;
     
     // Init Serial Port
     
-    BinaryToArduino bta(serialPort, 1);
+    BinaryToArduino bta(serialPort);
     bta.connectSerial(baudRate);
     
     // From Wave Degrader:

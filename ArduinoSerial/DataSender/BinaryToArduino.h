@@ -10,17 +10,15 @@ using namespace std;
 class BinaryToArduino
 {
     public:
-        BinaryToArduino(string portName, int bytes_per_chunk);
+        BinaryToArduino(string portName);
         Serial* mySerial;
         char * bytes;
         
         DWORD baudRate;
         string serialPort;
-        int bytesPerChunk;
         bool paused;
         
-        char go;
-        char stop;
+        char next;
         
         bool connectSerial(DWORD baudRate);
         bool connected();
