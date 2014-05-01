@@ -13,6 +13,10 @@ class MidiDecoder
         int trackNum;
         vector<int> trackDataStartIndexes;
         vector<int> trackSizes;
+        vector<int> deltaTimeStartIndexes;
+        vector<int> eventDataStartIndexes;
+        vector<char> eventCodes;
+        vector<int> eventSizes;
         int pulsesPerQuarterNote;
         int framesPerSecond;
         int ticksPerFrame;
@@ -20,6 +24,11 @@ class MidiDecoder
         bool isTimeDivisionInPPQN;
         char * bytes;
         char * read(int &length);
+        
+        int getShort(int startIndex);
+        int getInt(int startIndex);
+        int getInt(int startIndex, int byteNum);
+        int getVarLen(int &index);
         
     private:
         const char * path;
@@ -34,11 +43,6 @@ class MidiDecoder
         void decodeMIDIEvent(char statusByte, int &index);
         void decodeMetaEvent(int &index);
         void decodeSystemExclusiveEvent(char statusByte, int &index);
-        
-        int getShort(int startIndex);
-        int getInt(int startIndex);
-        int getInt(int startIndex, int byteNum);
-        int getVarLen(int &index);
 };
 
 #endif // MIDIDECODER_H

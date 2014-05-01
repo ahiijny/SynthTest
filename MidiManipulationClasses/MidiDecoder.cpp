@@ -148,6 +148,7 @@ void MidiDecoder::decodeTrackChunk(int &index)
     
     while (index < chunkEnd)
     {
+        deltaTimeStartIndexes.push_back(index);
         int dt = getVarLen(index);
         char statusByte = bytes[index]; // Event type is the first 4 bits: EEEExxxx
         
@@ -169,6 +170,8 @@ void MidiDecoder::decodeTrackChunk(int &index)
  */
 void MidiDecoder::decodeEvent(char statusByte, int &index)
 {
+    eventDataStartIndexes.push_back(index);
+    eventCodes.push_back(statusByte);
     
     if ((statusByte & 0xF0) == 0xF0) // Status byte is 1111xxxx
     {
@@ -188,11 +191,17 @@ void MidiDecoder::decodeMIDIEvent(char statusByte, int &index)
     char command = statusByte & 0xF0;
     int channel = (int)(statusByte & 0x0F);
     //printf("MIDI %i channel %i %i %i\n", command, channel, bytes[index], bytes[index + 1]);
-    index += 2;
+    
     if (((command & 0xFF) == 0xC0) || ((command & 0xFF) == 0xD0)) // 1100nnnn, 1101nnnn
     {
         // These commands do not have a second data byte
-        index--;
+        index++;
+        eventSizes.push_back(1); // record event size
+    }
+    else
+    {
+        index += 2;
+        eventSizes.push_back(2); // record event size
     }
     
 }
@@ -201,6 +210,9 @@ void MidiDecoder::decodeMIDIEvent(char statusByte, int &index)
  */
 void MidiDecoder::decodeMetaEvent(int &index)
 {
+    int before = index;
+    int after;
+    
     char type = bytes[index];
     index++;
     int length = getVarLen(index);
@@ -213,10 +225,18 @@ void MidiDecoder::decodeMetaEvent(int &index)
         microsecondsPerTick = getInt(index, 3);
 
     index += length;
+    
+    // Record event size
+
+    after = index;
+    eventSizes.push_back(after - before);
 }
 
 void MidiDecoder::decodeSystemExclusiveEvent(char statusByte, int &index)
 {
+    int before = index;
+    int after;
+    
     char type = statusByte & 0x0F;
     int length = getVarLen(index);
     /*printf("Syst %x len %1\n", type, length);
@@ -224,6 +244,11 @@ void MidiDecoder::decodeSystemExclusiveEvent(char statusByte, int &index)
         printf("%4i ", bytes[index + i]);
     cout << endl;*/
     index += length;
+    
+    // Record event size
+    
+    after = index;
+    eventSizes.push_back(after - before);
 }
 
 /** Reads the byte data from the specified file. The length of these
