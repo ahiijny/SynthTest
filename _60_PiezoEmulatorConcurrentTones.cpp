@@ -36,7 +36,7 @@
 //------ whatever substitutes for Arduino ignore these ------
 //-----------------------------------------------------------
 
-int sampleRate = 3906;
+int sampleRate = 2000;
 WaveWriter ww("Audio/CODE06_Concurrent_Tones.wav", sampleRate);
 
 const int OUTPUT = 0; // we're not using this anyway
