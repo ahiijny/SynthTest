@@ -3,6 +3,11 @@ SynthTest
 
 Experimentation with audio synthesis.
 
+NOTE
+=====================
+
+Most of the Arduino stuff in here doesn't work because the Arduino is not fast enough, and also because it doesn't have true analog output. Also, even if it did have true analog output, I'm not sure if piezos are sensitive enough to play sound samples at 256 different instensity levels. 
+
 
 ======= C++: ========
 =====================
