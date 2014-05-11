@@ -39,7 +39,7 @@ int main()
         printf("Ticks per frame: %i\n", md.ticksPerFrame);
     }
 
-    printf("Microseconds per tick: %i\n", md.microsecondsPerTick);
+    printf("Microseconds per beat: %i\n", md.microsecondsPerBeat);
 
     for (int i = 0; i < md.trackNum; i++)
     {

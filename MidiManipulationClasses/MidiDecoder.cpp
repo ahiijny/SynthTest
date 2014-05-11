@@ -11,7 +11,7 @@ using namespace std;
 MidiDecoder::MidiDecoder(string file_path)
 {
     path = file_path.c_str();
-    microsecondsPerTick = 500000; // default is 120 bpm
+    microsecondsPerBeat = 500000; // default is 120 bpm
     isTimeDivisionInPPQN = true;
 }
 
@@ -222,7 +222,7 @@ void MidiDecoder::decodeMetaEvent(int &index)
     cout << endl;*/
 
     if (type == 0x51)
-        microsecondsPerTick = getInt(index, 3);
+        microsecondsPerBeat = getInt(index, 3);
 
     index += length;
     

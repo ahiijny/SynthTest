@@ -18,9 +18,10 @@ class WaveWriter
         
         std::vector<char> bytes;
         void finalizeChunkSizes();
+        
+        const char * path;
 
     private:
-        const char * path;
         int subchunk2Size;
         int sampleRate;
         short numChannels;

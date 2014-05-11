@@ -20,7 +20,7 @@ class MidiDecoder
         int pulsesPerQuarterNote;
         int framesPerSecond;
         int ticksPerFrame;
-        int microsecondsPerTick;
+        int microsecondsPerBeat;
         bool isTimeDivisionInPPQN;
         char * bytes;
         char * read(int &length);
