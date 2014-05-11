@@ -106,7 +106,7 @@ void playPiezos()
     }
 }
 
-void read()
+void readData()
 {
     // Only read data if buffer is less than maxDiff ahead of the caret
     
@@ -138,7 +138,7 @@ void setup()
     
     Serial.begin(baud);
     
-    for (int i = 0; i < 8; i++)
+    for (int i = 0; i < 9; i++)
         Serial.write(next);
         
     // Calculate Tone Durations
@@ -166,6 +166,6 @@ void setup()
 
 void loop()
 {
-    read();
+    readData();
     playPiezos();
 }
