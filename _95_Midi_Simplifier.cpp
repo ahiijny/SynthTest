@@ -192,8 +192,8 @@ int main()
     
     // Send sequence data
     
-    write("Audio/SequenceTest.txt", &sequence[0], sequence.size());
-    //bta.send(&data[0], data.size(), 0);
+    //write("Audio/SequenceTest.txt", &sequence[0], sequence.size());
+    bta.send(&sequence[0], sequence.size(), 0);
 
     // End
 

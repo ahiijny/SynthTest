@@ -54,15 +54,20 @@ int maxDiff = bufferSize - minDiff;    // 768 : max value for how far ahead buff
 boolean playPushed = false;
 boolean playing = false;
 
-int toneDuration[128];
+unsigned int toneDuration[128];
 int offset = 0;
 
 int timeDivision = 16;
-int microsecondsPerInterval = 31250;
+long microsecondsPerInterval = 31250;
 
-/** Converts 4 consecutive bytes (big endian) into an int.
+int light = 2;
+
+int activeNote = 60;
+int add = 1;
+
+/** Converts 2 consecutive bytes (big endian) into an short.
  */
-int getInt(int startIndex)
+int getShort(int startIndex)
 {
     int value = 0;
     for (int i = 0; i < 4; i++)
@@ -73,11 +78,24 @@ int getInt(int startIndex)
     return value;
 }
 
-void playNote(int note, int microseconds)
+/** Converts 4 consecutive bytes (big endian) into a long.
+ */
+long getInt(int startIndex)
 {
-    int numPeriods = microseconds / toneDuration[note];
-    int timeHigh = toneDuration[note] + offset;
-    for (int i = 0; i < numPeriods; i++)
+    long value = 0;
+    for (int i = 0; i < 4; i++)
+    {
+        value <<= 8;
+        value |= (long)buffer[startIndex + i] & 0xFF;
+    }
+    return value;
+}
+
+void playNote(int note, long microseconds)
+{
+    long numPeriods = microseconds / toneDuration[note];
+    unsigned int timeHigh = toneDuration[note] / 2 + offset;
+    for (long i = 0; i < numPeriods; i++)
     {
         digitalWrite(piezo1, HIGH);
         digitalWrite(piezo2, HIGH);
@@ -92,12 +110,13 @@ void playPiezos()
 {    
     if (buffer[caretIndex] != 0xFF)
     {
-        playNote(buffer[caretIndex], microsecondsPerInterval);        
+        playNote(buffer[caretIndex], microsecondsPerInterval);
     }
     else
-    {
+    {        
         delay(microsecondsPerInterval / 1000);
-    }
+    }    
+            
     caretIndex++;
     if (caretIndex == bufferSize)
     {
@@ -106,17 +125,23 @@ void playPiezos()
     }
 }
 
-void readData()
+int bufferAhead()
+{
+    return (bufferCyclesAhead * bufferSize + bufferIndex) - (caretIndex);
+}
+
+boolean readData()
 {
     // Only read data if buffer is less than maxDiff ahead of the caret
     
-    if ((bufferCyclesAhead * bufferSize + bufferIndex) - (caretIndex) < maxDiff)
+    if (bufferAhead() < maxDiff)
     {
         if (Serial.available() > 0)
         {
             // Read Byte
             
             buffer[bufferIndex] = (byte)Serial.read();
+            //Serial.println(buffer[bufferIndex], HEX);
             bufferIndex++;  
             
             // Increment buffer index
@@ -128,8 +153,10 @@ void readData()
             }     
             
             Serial.write(next); // Request next byte
-        }   
+            return true;
+        }          
     } 
+    return false;
 }
 
 void setup()
@@ -138,16 +165,19 @@ void setup()
     
     Serial.begin(baud);
     
+    if (Serial.available() > 0)
+        Serial.read();
+    
     for (int i = 0; i < 9; i++)
         Serial.write(next);
         
     // Calculate Tone Durations
 
     for (int i = 0; i < 128; i++)
-        toneDuration[i] = (int)(pow(2, -(i - 69)/ 12.0) / 440 * 1000000);
+        toneDuration[i] = (unsigned int)(pow(2, -(i - 69)/ 12.0) / 440 * 1000000);
         
     pinMode(piezo1, OUTPUT);
-    pinMode(piezo2, OUTPUT);        
+    pinMode(piezo2, OUTPUT);
     
     while (Serial.available() < 8)
     {
@@ -160,8 +190,11 @@ void setup()
         bufferIndex++;  
     }
     
-    timeDivision = getInt(0);
+    timeDivision = getShort(0);
     microsecondsPerInterval = getInt(4);
+    
+    Serial.println(timeDivision, DEC);
+    Serial.print(microsecondsPerInterval, DEC);
 }
 
 void loop()

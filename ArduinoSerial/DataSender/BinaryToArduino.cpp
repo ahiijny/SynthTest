@@ -52,12 +52,6 @@ void BinaryToArduino::send(char * bytes, int length, int offset)
         
         for (int i = offset; i < offset + length; i ++)
         {
-            if (!mySerial->WriteData(&bytes[i], 1)) // Write a chunk
-            {
-                i--; // Go back a chunk if write was unsuccessful
-                cout << "!";
-            }
-            
             do // Check serial for any messages.
             {
                 result = mySerial->ReadData(msgBuffer, 1);
@@ -66,6 +60,13 @@ void BinaryToArduino::send(char * bytes, int length, int offset)
 
             if (msgBuffer[0] != next)
                 cout << msgBuffer[0];
+                
+            if (!mySerial->WriteData(&bytes[i], 1)) // Write a chunk
+            {
+                i--; // Go back a chunk if write was unsuccessful
+                cout << "!";
+            }        
+        
         }
 
         printf("\nSent %u bytes.\n", length);

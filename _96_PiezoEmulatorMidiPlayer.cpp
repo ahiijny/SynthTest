@@ -319,7 +319,11 @@ void setup()
     // Calculate Tone Durations
 
     for (int i = 0; i < 128; i++)
+    {
         toneDuration[i] = (int)(pow(2, -(i - 69)/ 12.0) / 440 * 1000000);
+        cout << i << " : " << toneDuration[i] << endl;
+    }
+    getch();
 
     pinMode(piezo1, OUTPUT);
     pinMode(piezo2, OUTPUT);
