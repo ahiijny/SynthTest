@@ -51,32 +51,12 @@ int maxDiff = bufferSize - minDiff;    // 768 : max value for how far ahead buff
 
 // Vars
 
-boolean playPushed = false;
-boolean playing = false;
-
 unsigned int toneDuration[128];
 int offset = 0;
 
 int timeDivision = 16;
 long microsecondsPerInterval = 31250;
 
-int light = 2;
-
-int activeNote = 60;
-int add = 1;
-
-/** Converts 2 consecutive bytes (big endian) into an short.
- */
-int getShort(int startIndex)
-{
-    int value = 0;
-    for (int i = 0; i < 4; i++)
-    {
-        value <<= 8;
-        value |= (int)buffer[startIndex + i] & 0xFF;
-    }
-    return value;
-}
 
 /** Converts 4 consecutive bytes (big endian) into a long.
  */
@@ -91,6 +71,11 @@ long getInt(int startIndex)
     return value;
 }
 
+/** Plays the specified MIDI note for the specified duration
+ *
+ * @param note          the MIDI note (0-127)
+ * @param microseconds  the duration in microseconds
+ */
 void playNote(int note, long microseconds)
 {
     long numPeriods = microseconds / toneDuration[note];
@@ -106,8 +91,14 @@ void playNote(int note, long microseconds)
     }
 }
 
+/** Plays the note for the specified minimum time interval if the
+ * caret currently points to a valid note, or delays for the minimum
+ * time interval if the caret points to a -1 (signifies a rest).
+ */
 void playPiezos()
 {    
+    // Play note or rest
+    
     if (buffer[caretIndex] != 0xFF)
     {
         playNote(buffer[caretIndex], microsecondsPerInterval);
@@ -117,6 +108,8 @@ void playPiezos()
         delay(microsecondsPerInterval / 1000);
     }    
             
+    // Increment caret; Loop back if necessary
+    
     caretIndex++;
     if (caretIndex == bufferSize)
     {
@@ -125,11 +118,15 @@ void playPiezos()
     }
 }
 
+/** Determines how ahead the buffer is relative to the caret, in number of bytes.
+ */
 int bufferAhead()
 {
     return (bufferCyclesAhead * bufferSize + bufferIndex) - (caretIndex);
 }
 
+/** Attempts to read a byte from Serial and record it into the buffer array.
+ */
 boolean readData()
 {
     // Only read data if buffer is less than maxDiff ahead of the caret
@@ -140,8 +137,7 @@ boolean readData()
         {
             // Read Byte
             
-            buffer[bufferIndex] = (byte)Serial.read();
-            //Serial.println(buffer[bufferIndex], HEX);
+            buffer[bufferIndex] = (byte)Serial.read(); 
             bufferIndex++;  
             
             // Increment buffer index
@@ -184,14 +180,20 @@ void setup()
         delay(1); // Wait for initializing time division and temp data
     }
     
+    // Read first 8 bytes
+    
     for (int i = 0; i < 8; i++)
     {
         buffer[bufferIndex] = (byte)Serial.read();
         bufferIndex++;  
     }
     
-    timeDivision = getShort(0);
+    // Decode time division and microseconds per interval
+    
+    timeDivision = getInt(0);
     microsecondsPerInterval = getInt(4);
+    
+    // Print decoded values, for debugging purposes
     
     Serial.println(timeDivision, DEC);
     Serial.print(microsecondsPerInterval, DEC);

@@ -8,7 +8,8 @@
 
 using namespace std;
 
-/** Writes bytes to file.
+/** Writes bytes to file. Used only for debugging purposes;
+ * Writes the simplified note sequence to file.
  */
 bool write(const char * path, char * bytes, int size)
 {
@@ -47,18 +48,20 @@ int getActiveNote(bool notes[], int size)
  */
 int main()
 {
+    // Declaration of Variables
+    
     string path;
     string serialPort;
     DWORD baudRate;
     int track;
+    int length;
     int noteDivision = 16;
+    
+    // Input
 
     cout << "Midi path: ";
     getline(cin, path);
-
-    // Input
-
-    int length;
+        
     MidiDecoder md(path);
     md.read(length);
 
@@ -85,7 +88,7 @@ int main()
         printf("size = %i\n", md.trackSizes[i]);
     }
 
-    // Serial Port
+    // Input Serial Port and Other Params
 
     cout << "Serial port: ";
     cin >> serialPort;
@@ -108,16 +111,16 @@ int main()
     cout << "Ticks per interval = " << ticksPerInterval << endl;
     cout << "Microseconds per interval = " << microsecondsPerInterval << endl << endl;
     
-    // Encode time data
+    // Encode time data into byte sequence
     
     vector<char> sequence;
-    MidiWriter mw(".");
-
-    char * divisionData = mw.getBytes(noteDivision);
+    MidiWriter mw(".");   
+    
+    char * divisionData = mw.getBytes(noteDivision); // Note resolution (e.g. 16 = 16th note)
     for (int i = 0; i < 4; i++)
         sequence.push_back(divisionData[i]);
 
-    char * intervalData = mw.getBytes(microsecondsPerInterval);
+    char * intervalData = mw.getBytes(microsecondsPerInterval); // Microseconds per minimum note resolution
     for (int i = 0; i < 4; i++)
         sequence.push_back(intervalData[i]);
     
@@ -127,18 +130,22 @@ int main()
     int interval = 0;
     int lastInterval = 0;
     
-    bool notes[128];
+    bool notes[128]; // Specify if each note is on or off
     
-    for (int i = 0; i < 128; i++)
+    for (int i = 0; i < 128; i++) // Init each note "off"
         notes[i] = false;
     
     int startIndex = md.trackDataStartIndexes[track];
     int endIndex = startIndex + md.trackSizes[track];
     int index = 0;
     int limit = md.deltaTimeStartIndexes.size();
+    
+    // Find start of specified track
 
     while (md.deltaTimeStartIndexes[index] < startIndex)
         index++;
+        
+    // Loop through track events
         
     while (index < limit && md.deltaTimeStartIndexes[index] < endIndex)
     {
@@ -148,10 +155,8 @@ int main()
         int dt = md.getVarLen(caret);
         tick += dt;
         interval = tick / ticksPerInterval;
-        
-        //cout << "Tick = " << tick << " ; Interval = " << interval << endl;
 
-        // Update sequence if necessary
+        // Update sequence data if necessary
 
         if (interval > lastInterval)
         {
@@ -165,9 +170,9 @@ int main()
         if ((event & 0xF0) == 0x90) // Note on
         {
             int dataIndex = md.eventDataStartIndexes[index];
-            int note = (int)md.bytes[dataIndex] & 0xFF;
+            int note = (int)md.bytes[dataIndex] & 0xFF; // Byte 1 : MIDI note
             dataIndex++;
-            int velocity = (int)md.bytes[dataIndex] & 0xFF;
+            int velocity = (int)md.bytes[dataIndex] & 0xFF; // Byte 2 : velocity (0 = off)
             if (velocity == 0)
                 notes[note] = false;
             else
@@ -191,7 +196,7 @@ int main()
     bta.connectSerial(baudRate);
     
     // Send sequence data
-    
+        
     //write("Audio/SequenceTest.txt", &sequence[0], sequence.size());
     bta.send(&sequence[0], sequence.size(), 0);
 
